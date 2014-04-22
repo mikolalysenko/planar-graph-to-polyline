@@ -42,6 +42,8 @@ tape("planar-graph-to-polyline", function(t) {
   function testGraph(edges, positions, expectedResult) {
     var polyline = graphToPolyline(edges, positions).map(canonicalizeLoops)
     var expected = expectedResult.map(canonicalizeLoops)
+    polyline.sort()
+    expected.sort()
     t.same(polyline, expected)
   }
 
@@ -98,6 +100,27 @@ tape("planar-graph-to-polyline", function(t) {
   for(var i=2; i<3; ++i) {
     earring(i, 6)
   }
+
+  function concentric(n, theta) {
+    var edges = []
+    var vertices = []
+    for(var nn=0; nn<n; ++nn) {
+      var r = 1.0 / (nn + 1.0)
+      var base = vertices.length
+      for(var i=0; i<theta; ++i) {
+        var x = 2.0 * Math.PI * i / theta
+        var c = Math.cos(x)
+        var s = Math.sin(x)
+        edges.push([base+i, base+((i+1)%theta)])
+        vertices.push([r*c, r*s])
+      }
+    }
+    var expected = []
+    console.log(edges, vertices)
+    testGraph(edges, vertices, expected)
+  }
+
+  concentric(2, 10)
 
   t.end()
 })
