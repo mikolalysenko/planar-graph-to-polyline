@@ -1,6 +1,6 @@
 {
   "name": "planar-graph-to-polyline",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Convert a planar graph to a collection of nest polylines",
   "main": "pg2pl.js",
   "directories": {
