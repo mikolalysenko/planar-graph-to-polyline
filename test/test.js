@@ -75,9 +75,12 @@ tape("planar-graph-to-polyline", function(t) {
   function earring(n, theta) {
     var ringEdges = []
     var ringVertices = [ [0,0] ]
+    var ringFaces = []
+    var prevFace = []
     for(var nn=0; nn<n; ++nn) {
       var base = ringVertices.length-1
       ringEdges.push([0,ringVertices.length])
+      var cFace = [0]
       var ntheta = theta + n-nn
       for(var i=1; i<ntheta; ++i) {
         var x = 2.0 * Math.PI * i / ntheta
@@ -85,42 +88,74 @@ tape("planar-graph-to-polyline", function(t) {
         var s = Math.sin(x)
         var r = 1.0 / (nn+1)
         ringVertices.push([r*c, r*s])
+        cFace.push(i+base)
         if(i === ntheta-1) {
           break
         }
         ringEdges.push([i+base,((i+1)%ntheta)+base])
       }
       ringEdges.push([ringVertices.length-1, 0])
+      prevFace.push(0)
+      cFace.reverse()
+      ringFaces.push(prevFace.concat(cFace.slice(0, cFace.length-1)))
+      cFace.reverse()
+      prevFace = cFace
     }
-    console.log(ringEdges, ringVertices)
+    ringFaces.push(prevFace)
     var expected = []
+    for(var i=1; i<ringFaces.length; i+=2) {
+      expected.push([ringFaces[i]])
+    }
     testGraph(ringEdges, ringVertices, expected)
   }
 
-  for(var i=2; i<3; ++i) {
+  for(var i=1; i<=10; ++i) {
     earring(i, 6)
   }
 
   function concentric(n, theta) {
     var edges = []
     var vertices = []
+    var fexpected = []
     for(var nn=0; nn<n; ++nn) {
       var r = 1.0 / (nn + 1.0)
       var base = vertices.length
+      var face = []
       for(var i=0; i<theta; ++i) {
         var x = 2.0 * Math.PI * i / theta
         var c = Math.cos(x)
         var s = Math.sin(x)
         edges.push([base+i, base+((i+1)%theta)])
         vertices.push([r*c, r*s])
+        face.push(base+i)
       }
+      face.reverse()
+      fexpected.push(face)
     }
     var expected = []
-    console.log(edges, vertices)
+    for(var i=0; i<n; i+=2) {
+      if(i+1>=n) {
+        expected.push([fexpected[i]])
+      } else {
+        fexpected[i+1].reverse()
+        expected.push([fexpected[i], fexpected[i+1]])
+      }
+    }
     testGraph(edges, vertices, expected)
   }
 
-  concentric(2, 10)
+  for(var i=1; i<=10; ++i) {
+    concentric(i, 10)
+  }
+
+  //Create checkerboard
+  function grid(n, m) {
+
+  }
+
+  //Lenses
+
+  //Grids
 
   t.end()
 })

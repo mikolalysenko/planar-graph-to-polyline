@@ -42,8 +42,6 @@ function planarGraphToPolyline(edges, positions) {
     return area[area.length-1] > 0
   }
 
-  console.log(faces)
-
   //Extract all clockwise faces
   faces = faces.filter(ccw)
 
@@ -96,21 +94,11 @@ function planarGraphToPolyline(edges, positions) {
     }
   }
 
-  console.log("parent=", parent)
-
   //Initialize face adjacency list
   var fadj = dup([numFaces, 0])
-  var toVisit = []
-  var parity = new Array(faces.length)
   for(var i=0; i<numFaces; ++i) {
     fadj[i].push(parent[i])
     fadj[parent[i]].push(i)
-    if(parent[i] === i) {
-      toVisit.push(i)
-      parity[i] = 0
-    } else {
-      parity[i] = -1
-    }
   }
 
   //Build adjacency matrix for edges
@@ -134,8 +122,6 @@ function planarGraphToPolyline(edges, positions) {
     }
   }
 
-  console.log("Internals=", internalVertices)
-  
   function sharedBoundary(c) {
     var n = c.length
     for(var i=0; i<n; ++i) {
@@ -146,7 +132,16 @@ function planarGraphToPolyline(edges, positions) {
     return true
   }
 
-  console.log("fadj=", fadj, parity)
+  var toVisit = []
+  var parity = dup(numFaces, -1)
+  for(var i=0; i<numFaces; ++i) {
+    if(parent[i] === i && !sharedBoundary(faces[i])) {
+      toVisit.push(i)
+      parity[i] = 0
+    } else {
+      parity[i] = -1
+    }
+  }
 
   //Using face adjacency, classify faces as in/out
   var result = []
@@ -158,11 +153,9 @@ function planarGraphToPolyline(edges, positions) {
     })
     var nnbhr = nbhd.length
     var p = parity[top]
-    console.log("visit:", top, nbhd, p)
     var polyline
     if(p === 0) {
       var c = faces[top]
-      c.reverse()
       polyline = [c]
     }
     for(var i=0; i<nnbhr; ++i) {
@@ -175,6 +168,7 @@ function planarGraphToPolyline(edges, positions) {
       if(p === 0) {
         var c = faces[f]
         if(!sharedBoundary(c)) {
+          c.reverse()
           polyline.push(c)
         }
       }
@@ -183,9 +177,6 @@ function planarGraphToPolyline(edges, positions) {
       result.push(polyline)
     }
   }
-
-  console.log("faces=", faces)
-  console.log("result=", result)
 
   return result
 }
