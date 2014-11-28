@@ -1,16 +1,22 @@
-"use strict"
+'use strict'
 
 module.exports = planarGraphToPolyline
 
-var e2a = require("edges-to-adjacency-list")
-var planarDual = require("planar-dual")
-var preprocessPolygon = require("point-in-big-polygon")
-var twoProduct = require("two-product")
-var robustSum = require("robust-sum")
-var uniq = require("uniq")
-var dup = require("dup")
+var e2a = require('edges-to-adjacency-list')
+var planarDual = require('planar-dual')
+var preprocessPolygon = require('point-in-big-polygon')
+var twoProduct = require('two-product')
+var robustSum = require('robust-sum')
+var uniq = require('uniq')
+var dup = require('dup')
+var trimLeaves = require('./lib/trim-leaves')
 
 function planarGraphToPolyline(edges, positions) {
+
+  //Trim leaves
+  var result = trimLeaves(edges, positions)
+  edges = result[0]
+  positions = result[1]
 
   var numVertices = positions.length
   var numEdges = edges.length
@@ -19,7 +25,7 @@ function planarGraphToPolyline(edges, positions) {
   var adj = e2a(edges, positions.length)
   for(var i=0; i<numVertices; ++i) {
     if(adj[i].length % 2 === 1) {
-      throw new Error("planar-graph-to-polyline: graph must be manifold")
+      throw new Error('planar-graph-to-polyline: graph must be manifold')
     }
   }
 
