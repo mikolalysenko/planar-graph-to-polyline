@@ -74,7 +74,7 @@ function planarGraphToPolyline(edges, positions) {
       for(var k=0; k<n; ++k) {
         var d = pmc(positions[c[k]])
         if(d !== 0) {
-          if(d > 0) {
+          if(d < 0) {
             row[j] = 1
             count += 1
           }
