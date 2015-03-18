@@ -8,8 +8,24 @@ var preprocessPolygon = require('point-in-big-polygon')
 var twoProduct = require('two-product')
 var robustSum = require('robust-sum')
 var uniq = require('uniq')
-var dup = require('dup')
 var trimLeaves = require('./lib/trim-leaves')
+
+function makeArray(length, fill) {
+  var result = new Array(length)
+  for(var i=0; i<length; ++i) {
+    result[i] = fill
+  }
+  return result
+}
+
+function makeArrayOfArrays(length) {
+  var result = new Array(length)
+  for(var i=0; i<length; ++i) {
+    result[i] = []
+  }
+  return result
+}
+
 
 function planarGraphToPolyline(edges, positions) {
 
@@ -101,7 +117,7 @@ function planarGraphToPolyline(edges, positions) {
   }
 
   //Initialize face adjacency list
-  var fadj = dup([numFaces, 0])
+  var fadj = makeArrayOfArrays(numFaces)
   for(var i=0; i<numFaces; ++i) {
     fadj[i].push(parent[i])
     fadj[parent[i]].push(i)
@@ -109,7 +125,7 @@ function planarGraphToPolyline(edges, positions) {
 
   //Build adjacency matrix for edges
   var edgeAdjacency = {}
-  var internalVertices = dup(numVertices, false)
+  var internalVertices = makeArray(numVertices, false)
   for(var i=0; i<numFaces; ++i) {
     var c = faces[i]
     var n = c.length
@@ -139,7 +155,7 @@ function planarGraphToPolyline(edges, positions) {
   }
 
   var toVisit = []
-  var parity = dup(numFaces, -1)
+  var parity = makeArray(numFaces, -1)
   for(var i=0; i<numFaces; ++i) {
     if(parent[i] === i && !sharedBoundary(faces[i])) {
       toVisit.push(i)
